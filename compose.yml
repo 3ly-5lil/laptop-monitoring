@@ -1,0 +1,138 @@
+services:
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    # Port nort needed because of the network mode
+    # ports:
+    #  - ":9100"
+    pid: host
+    network_mode: host
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - "/:/host:ro,rslave"
+
+  process-exporter:
+    image: ncabatoff/process-exporter:latest
+    container_name: process-exporter
+    restart: unless-stopped
+    pid: host
+    # ports:
+    #  - ":9256"
+    volumes:
+      - ./process-exporter/config.yml:/config/config.yml:ro
+      - /proc:/host/proc:ro
+    command:
+      - "--procfs=/host/proc"
+      - "--config.path=/config/config.yml"
+
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:latest
+    container_name: dcgm-exporter
+    hostname: laptop
+    restart: unless-stopped
+    # ports:
+    #  - ":9400"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    # ports:
+    #   - "8090:8080" 
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: unless-stopped
+    command:
+      - "-config.file=/etc/loki/loki-config.yml"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki-data:/loki
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: unless-stopped
+    command:
+      - "run"
+      - "/etc/alloy/config.alloy"
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    depends_on:
+      - loki
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=5GB"
+    depends_on:
+      - node-exporter
+      - process-exporter
+      - cadvisor
+      - dcgm-exporter
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  renderer:
+    image: grafana/grafana-image-renderer:latest
+    container_name: renderer
+    restart: unless-stopped
+    environment:
+      - AUTH_TOKEN=your-secure-secret-token
+      
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    environment:
+      - GF_DASHBOARDS_VERSIONS_TO_KEEP=20
+      - GF_ANNOTATIONS_CLEANUPJOB_DASHBOARD_ANNOTATIONS_MAX_AGE=30d
+      - GF_ANNOTATIONS_CLEANUPJOB_API_ANNOTATIONS_MAX_AGE=30d
+      - GF_RENDERING_SERVER_URL=http://renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_RENDERING_RENDERER_TOKEN=your-secure-secret-token
+    depends_on:
+      - prometheus
+      - loki
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  loki-data:

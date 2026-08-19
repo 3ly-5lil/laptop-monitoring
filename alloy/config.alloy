@@ -1,0 +1,35 @@
+loki.relabel "journal_relabel" {
+  forward_to = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal_syslog_identifier"]
+    target_label  = "syslog_identifier"
+  }
+
+  rule {
+    source_labels = ["__journal_priority"]
+    target_label  = "priority"
+  }
+}
+
+loki.source.journal "system" {
+  forward_to = [loki.write.local.receiver]
+
+  relabel_rules = loki.relabel.journal_relabel.rules
+
+  labels = {
+    job  = "systemd-journal",
+    host = "ubuntu-laptop",
+  }
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
