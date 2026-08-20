@@ -67,7 +67,7 @@ Grafana sits at the top and queries two backends: Prometheus for metrics and Lok
 |---|---|
 | **CPU** | 12 logical cores |
 | **RAM** | 32 GB |
-| **Storage** | NVMe (`/`) + HDD (`/home`) |
+| **Storage** | NVMe (`/`) + SDD SATA (`/home`) |
 | **GPU** | NVIDIA GeForce GTX 1650 Ti, 4 GB VRAM |
 | **OS** | Ubuntu (Linux) |
 
