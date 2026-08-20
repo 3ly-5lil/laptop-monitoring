@@ -8,13 +8,13 @@ A full observability platform for an Ubuntu laptop, built with the Grafana LGTM 
 
 | Dashboard | Screenshot |
 |---|---|
-| **Overview** — at-a-glance laptop health | ![Overview](docs/dashboard/Overview.png) |
-| **Memory & Storage** — RAM breakdown, swap, disk | ![Memory](docs/dashboard/Memory.png) |
-| **Filesystem** — per-mount usage, IOPS, throughput | ![Filesystem](docs/dashboard/Filesystem.png) |
-| **Docker & Containers** — per-container CPU/RAM/network | ![Containers](docs/dashboard/Containers.png) |
-| **GPU** — NVIDIA utilization, VRAM, temp, power, clocks | ![GPU](docs/dashboard/GPU.png) |
-| **Processes** — top processes by CPU and memory | ![Process](docs/dashboard/Process.png) |
-| **Logs** — live systemd journal via Loki | ![Logs](docs/dashboard/Logs.png) |
+| **Overview** — at-a-glance laptop health | ![Overview](./images/Overview.png) |
+| **Memory & Storage** — RAM breakdown, swap, disk | ![Memory](./images/Memory.png) |
+| **Filesystem** — per-mount usage, IOPS, throughput | ![Filesystem](./images/Filesystem.png) |
+| **Docker & Containers** — per-container CPU/RAM/network | ![Containers](./images/Containers.png) |
+| **GPU** — NVIDIA utilization, VRAM, temp, power, clocks | ![GPU](./images/GPU.png) |
+| **Processes** — top processes by CPU and memory | ![Process](./images/Process.png) |
+| **Logs** — live systemd journal via Loki | ![Logs](./images/Logs.png) |
 
 ---
 
