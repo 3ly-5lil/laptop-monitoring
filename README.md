@@ -136,8 +136,8 @@ This enables a zero-touch setup where dashboards and datasources are immediately
 **Prerequisites:** Docker with the Compose plugin installed. For GPU monitoring, the NVIDIA Container Toolkit must also be installed and configured.
 
 ```bash
-git clone <repo-url>
-cd monitoring
+git clone https://github.com/3ly-5lil/laptop-monitoring.git
+cd laptop-monitoring
 docker compose up -d
 ```
 
