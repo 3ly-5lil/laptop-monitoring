@@ -7,7 +7,7 @@ A full observability platform for an Ubuntu laptop, built with the Grafana LGTM 
 ## 📸 Dashboards
 
 | Dashboard | Screenshot |
-|---|---|
+| --- | --- |
 | **Overview** — at-a-glance laptop health | ![Overview](./images/Overview.png) |
 | **Memory & Storage** — RAM breakdown, swap, disk | ![Memory](./images/Memory.png) |
 | **Filesystem** — per-mount usage, IOPS, throughput | ![Filesystem](./images/Filesystem.png) |
@@ -50,7 +50,7 @@ Grafana sits at the top and queries two backends: Prometheus for metrics and Lok
 ### Components
 
 | Component | Role | Image |
-|---|---|---|
+| --- | --- | --- |
 | **Node Exporter** | Host CPU, RAM, disk, network, sensors | `docker.io/prom/node-exporter:v1.12.1` |
 | **Process Exporter** | Per-process CPU, memory, thread counts | `docker.io/ncabatoff/process-exporter:v0.8.7` |
 | **cAdvisor** | Docker container resource metrics | `gcr.io/cadvisor/cadvisor:v0.55.1` |
@@ -64,7 +64,7 @@ Grafana sits at the top and queries two backends: Prometheus for metrics and Lok
 ### Hardware
 
 | | |
-|---|---|
+| --- | --- |
 | **CPU** | 12 logical cores |
 | **RAM** | 32 GB |
 | **Storage** | NVMe (`/`) + SDD SATA (`/home`) |
@@ -113,7 +113,7 @@ Configured for single-node use with TSDB schema v13 and filesystem-backed chunk 
 Alloy reads the Ubuntu systemd journal and ships entries to Loki with additional labels extracted from journal metadata. The relabeling pipeline promotes three journald fields to queryable Loki labels:
 
 | Loki Label | Journald Field | Example Value |
-|---|---|---|
+| --- | --- | --- |
 | `unit` | `_SYSTEMD_UNIT` | `docker.service` |
 | `syslog_identifier` | `SYSLOG_IDENTIFIER` | `dockerd` |
 | `priority` | `PRIORITY` | `6` |
@@ -143,9 +143,9 @@ docker compose up -d
 
 Once running:
 
-- **Grafana** → http://localhost:3000
-- **Prometheus** → http://localhost:9090
-- **Loki** → http://localhost:3100
+- **Grafana** → <http://localhost:3000>
+- **Prometheus** → <http://localhost:9090>
+- **Loki** → <http://localhost:3100>
 
 ---
 
@@ -197,7 +197,7 @@ After the change, `wlp5s0` appeared in Node Exporter's metrics as expected.
 
 On first startup, Loki exited immediately with:
 
-```
+```text
 Get "http://localhost:8500/v1/kv/collectors/scheduler": dial tcp [::1]:8500: connect: connection refused
 unable to initialise ring state
 ```
@@ -224,12 +224,13 @@ When running Process Exporter in a container to monitor host processes, mounting
 
 Initial startup attempts triggered kernel AppArmor audit denials:
 
-```
+```text
 apparmor="DENIED" operation="ptrace" profile="docker-default"
 requested_mask="read" denied_mask="read" peer="unconfined"
 ```
 
 This highlighted a key distinction between **Linux Capabilities** and **Linux Security Modules (LSMs)**:
+
 - Adding the `SYS_PTRACE` capability (`cap_add: [SYS_PTRACE]`) grants the process permission at the capability layer.
 - However, Docker applies its default AppArmor profile (`docker-default`) to all containers, which explicitly denies `ptrace` operations at the Mandatory Access Control (MAC) layer—blocking the operation before capabilities are even checked.
 
@@ -288,7 +289,7 @@ The GPU UUID (`GPU-f7e6811a-a5f0-df92-4c3c-66d7160d8838`) is the stable, hardwar
 
 Alloy refused to start and immediately exited with:
 
-```
+```text
 Error: could not perform the initial load successfully
 ```
 
@@ -325,7 +326,7 @@ No configuration change was needed. The old label simply ages out of retention n
 
 The dashboards are designed around a specific idea: rather than being a collection of interesting metrics, they should function as an investigation path. If the laptop feels slow, the goal is to be able to open Grafana and drill down to the root cause without guesswork.
 
-```
+```text
 Overview:  CPU = 96%
     ↓
 Process dashboard:  java = 78%
@@ -338,7 +339,7 @@ Logs dashboard:  DB connection timeout errors
 Each dashboard is scoped to answer one question clearly, and then point toward the next level of detail when something looks wrong:
 
 | Dashboard | Primary Question |
-|---|---|
+| --- | --- |
 | Overview | Is my laptop healthy right now? |
 | Memory & Storage | What is consuming RAM or disk? |
 | Filesystem | How are my drives performing? |
@@ -352,7 +353,7 @@ Each dashboard is scoped to answer one question clearly, and then point toward t
 ## 🔧 Stack Versions
 
 | Component | Pinned Version / Full Image Tag |
-|---|---|
+| --- | --- |
 | Grafana | `docker.io/grafana/grafana:13.1.3` |
 | Prometheus | `docker.io/prom/prometheus:v3.13.2` |
 | Loki | `docker.io/grafana/loki:3.7.6` |
